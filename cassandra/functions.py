@@ -1,4 +1,12 @@
 """
+This file contains the functions for cassandra system
+"""
+
+
+import csv
+
+
+"""
 function:
     name: drop_keyspace
     parameter:  KEYSPACE, cluster_session
@@ -10,6 +18,8 @@ def drop_keyspace(cluster_session, KEYSPACE):
         cluster_session.execute("DROP KEYSPACE " + KEYSPACE)
         return True
     return False
+
+
 """
 function:
     name: create_keyspace
@@ -25,3 +35,32 @@ def create_keyspace(cluster_session, KEYSPACE):
                             { 'class': 'SimpleStrategy', 'replication_factor': '2' }
                             """ % KEYSPACE)
     return True
+
+
+"""
+function:
+    name: parse_CSV
+    parameter: filename, delimiter
+    return
+"""
+def parse_CSV(filename, csv_delimiter = ','):
+    csvData = []
+    with open(filename, newline='' ) as f:
+        reader = csv.reader(f, delimiter=csv_delimiter)
+        for row in reader:
+            if(row[-1] == ''):
+                row = row[:-1]
+            csvData.append(row)
+    return csvData
+
+"""
+function:
+    name: get_safe_string
+    parameter: string
+    return None null string
+"""
+def get_safe_string(string):
+    if not string:
+        return 0
+    else:
+        return string
