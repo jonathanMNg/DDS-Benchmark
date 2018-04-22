@@ -31,7 +31,7 @@ def create_keyspace(cluster_session, KEYSPACE):
     if KEYSPACE in [row[0] for row in rows]:
         return False
     cluster_session.execute("""
-                            CREATE KEYSPACE %s WITH replication =
+                            CREATE KEYSPACE IF NOT EXISTS %s WITH replication =
                             { 'class': 'SimpleStrategy', 'replication_factor': '2' }
                             """ % KEYSPACE)
     return True
@@ -62,5 +62,16 @@ function:
 def get_safe_string(string):
     if not string:
         return 0
+    else:
+        return string
+"""
+function:
+    name: get_safe_string
+    parameter: string
+    return None null string
+"""
+def get_safe_date(string):
+    if not string:
+        return "1111-11-11"
     else:
         return string
