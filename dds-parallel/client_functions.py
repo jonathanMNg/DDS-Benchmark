@@ -143,8 +143,9 @@ def do_connect(node, filename, returnVal, cp_type):
         #send config info
         client_node.sendData(data_send)
         #receive response (status)
+        data_response = client_node.recvData()
         if(cp_type == 'runLocalNode'):
-            data_len = client_node.recvData()['totalRow']
+            data_len = data_response['totalRow']
             query_data = []
             for i in range(int(data_len)):
                 node1 = Cluster_Client(cp['host'], int(cp['port']))
@@ -155,8 +156,9 @@ def do_connect(node, filename, returnVal, cp_type):
                 except:
                     break
             returnObj['data'] = query_data
-            
-        data_response = client_node.recvData()
+            returnObj['nodes'] =data_response['returnVal']
+            returnObj['ddlfile'] = node['ddlfile']
+
         if(cp_type == 'runLocalNode'):
             returnObj['nodes'] = data_response['returnVal']
             returnObj['ddlfile'] = node['ddlfile']

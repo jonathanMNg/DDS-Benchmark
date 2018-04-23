@@ -208,12 +208,14 @@ def Main():
                         insert_sql = "INSERT INTO {table_name} VALUES {row};".format(table_name=table,row=row)
                         c.execute(insert_sql)
                 response = execute_sql(db_conn, readFile(ddlfile), 'runSQL', None)
-                node2.sendData({'totalRow': len(response['data'])})
-                for _ in response['data']:
-                    node2.listen()
-                    node2.sendData(response['data'].pop(0))
+                response_data = response['data']
                 response['data'] = []
                 response['returnVal'] = join_nodes
+                response['totalRow'] = len(response_data)
+                node2.sendData(response)
+                for row in response_data:
+                    node2.listen()
+                    node2.sendData(row)
                 break
             elif (data_pc_type == "catalog_csv"):
                 cp = data_node['url']
