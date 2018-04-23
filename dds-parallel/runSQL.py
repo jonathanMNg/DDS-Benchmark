@@ -186,13 +186,11 @@ def handleSqlCreate(clustercfg, ddlfile):
         threads[i].join()
 
     # updata catalog table
-    """
     catalog_cp = {}
     catalog_cp['url'] = cfg['catalog.hostname']
     do_connect(catalog_cp, clustercfg, returnVal,'catalog')
     for value in returnVal:
         print('[' + value['url'] + ']:', value['ddlfile'], value['status'])
-    """
 def handleSqlInsert(clustercfg, ddlfile):
     handleSqlCreate(clustercfg, ddlfile)
 def handleSqlDrop(clustercfg, ddlfile):
