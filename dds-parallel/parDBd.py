@@ -172,7 +172,7 @@ def Main():
                     for row in c.fetchall():
                         tNames.append(row[0])
                     response = init_catalog(cfgFile, tNames, node)
-                break
+                pass
             elif (data_pc_type == "runLocalNode"):
                 response = {}
                 cp = parseUrl(data_node['url'])
@@ -216,12 +216,12 @@ def Main():
                 for row in response_data:
                     node2.listen()
                     node2.sendData(row)
-                break
+                pass
             elif (data_pc_type == "catalog_csv"):
                 cp = data_node['url']
                 cat_data = data_node['data']
                 response = update_catalog_csv(cp, cat_data)
-                break
+                pass
             elif (data_pc_type == "node"):
                 cp = parseUrl(data_node['url'])
                 data_ddlFile = data_node['ddlfile']
@@ -230,7 +230,7 @@ def Main():
                     #execute statements from sqlFile
                     sqlFile = readFile(data_ddlFile)
                     response = execute_sql(db_conn, sqlFile, 'node')
-                break
+                pass
             elif (data_pc_type == "runSQL"):
                 cp = parseUrl(data_node['url'])
                 #sql_conn = create_connection(cp['db'])
@@ -257,13 +257,13 @@ def Main():
                         tableData = {'isExists': False}
                         node2.sendData(tableData)
                 else:
-                    break
+                    pass
             elif (data_pc_type == "csv"):
                 cp = parseUrl(data_node['url'])
                 csv_delimiter = data_node['delimiter']
                 csv_conn = create_connection(cp['db'])
                 response = loadCSV(data_node, csv_conn, csv_delimiter)
-                break
+                pass
             elif (data_pc_type == "parse_cat_db"):
                 cp = parseUrl(data_node['url'])
                 tName = data_node['tName']
@@ -271,7 +271,7 @@ def Main():
                 if(data_node['loop']):
                     node2.sendData(response)
                 else:
-                    break
+                    pass
             elif (data_pc_type == "multi_thread"):
                 if(data_node['sql_insert'] != None):
                     cp = parseUrl(data_node['url'])
@@ -281,10 +281,10 @@ def Main():
                     if(data_node['loop']):
                         node2.sendData(response)
                     else:
-                        break
+                        pass
                 else:
                     response = {'status': 'finish'}
-                    break
+                    pass
             #Part4X-MultiThreaded
             elif (data_pc_type == "get_partition_data"):
                 selColIndex, numCol = getSelectedColData(data_node)
@@ -292,9 +292,9 @@ def Main():
                 if(data_node['loop']):
                     node2.sendData(response)
                 else:
-                    break
+                    pass
             else:
-                break
+                pass
         node2.sendData(response)
         node2.close()
 
