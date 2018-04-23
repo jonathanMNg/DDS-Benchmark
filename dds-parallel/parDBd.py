@@ -168,11 +168,11 @@ def Main():
                     if(host == cp['host'] and port == cp['port']):
                         db_conn = create_connection(cp['db'])
                         c = db_conn.cursor()
-                            c.execute("SELECT name FROM sqlite_master WHERE type='table';")
-                            tNames = []
-                            for row in c.fetchall():
-                                tNames.append(row[0])
-                            response = init_catalog(cfgFile, tNames, node)
+                        c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+                        tNames = []
+                        for row in c.fetchall():
+                            tNames.append(row[0])
+                        response = init_catalog(cfgFile, tNames, node)
                 break
             elif (data_pc_type == "runLocalNode"):
                 response = {}
