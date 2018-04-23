@@ -226,7 +226,6 @@ def Main():
                 cp = parseUrl(data_node['url'])
                 data_ddlFile = data_node['ddlfile']
                 db_conn = create_connection(cp['db'])
-                print(cp)
                 if db_conn is not None:
                     #execute statements from sqlFile
                     sqlFile = readFile(data_ddlFile)
