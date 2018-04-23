@@ -1,1 +1,0 @@
-CREATE TABLE STUDENTS(sid INTEGER, sname char(80))

@@ -1,6 +1,7 @@
 import csv
 from sqlite3 import Error
 import sqlite3
+from datetime import datetime
 """
 function: create_connection()
 parameter: (string) database_file
@@ -76,14 +77,14 @@ parameter: (string) csvfile, (char) delimiter: the csv's divider (default value 
 return: (array) each element represent a line in the csv file
 This function parse the csvfile in to an array
 """
-def parseCSV(filename, csv_delimiter = ','):
+def parse_CSV(filename, csv_delimiter = ','):
     csvData = []
     with open(filename, newline='' ) as f:
         reader = csv.reader(f, delimiter=csv_delimiter)
         for row in reader:
             if(row[-1] == ''):
                 row = row[:-1]
-            csvData.append(csv_delimiter.join(row))
+            csvData.append(row)
     return csvData
 
 """
@@ -94,7 +95,25 @@ This will load the csv to the database based on the partition in the cluster con
 """
 def loadCSV(node, db_conn, delimiter=','):
     #parse data from csvfile
-    csvData = parseCSV(node['csvfile'], delimiter)
+    movies_table = []
+    csvData = []
+    csv_file = parse_CSV(node['csvfile'])
+    csv_header = csv_file.pop(0)
+    for row in csv_file:
+        dict_row = {}
+        for i, col_name in enumerate(csv_header):
+            dict_row[col_name] = row[i]
+        movies_table.append(dict_row)
+    for movie in movies_table:
+        row = (
+                 movie['id'],
+                 movie['title'],
+                 movie['popularity'],
+                 movie['vote_average'],
+                 movie['budget'],
+                 movie['revenue'],
+                 get_safe_date(movie['release_date']))
+        csvData.append('|'.join(row))
     #get selected column from the first line of csv file
     csv = csvData[0];
     csv_row = []
@@ -143,7 +162,9 @@ def loadCSV(node, db_conn, delimiter=','):
     Then it will be execute in sql to load the data into the selected partition.
     """
     for csv in csvData:
-        csv = csv.split(delimiter)
+        csv = csv.split('|')
+        if(len(csv) > 7):
+            print(csv)
         if(node['partmtd'] == 0):
             csv_row.append(csv)
         elif(node['partmtd'] == 1):
@@ -231,3 +252,26 @@ def multi_threadloadCSV(node, db_conn, delimiter=','):
 
     response = execute_sql(db_conn, load_sql, 'csv_multi_thread', csv_row)
     return response
+
+"""
+function:
+    name: get_safe_string
+    parameter: string
+    return None null string
+"""
+def get_safe_string(string):
+    if not string:
+        return 0
+    else:
+        return string
+"""
+function:
+    name: get_safe_string
+    parameter: string
+    return None null string
+"""
+def get_safe_date(string):
+    if (len(string) < 10):
+        return "1111-11-11"
+    else:
+        return string
