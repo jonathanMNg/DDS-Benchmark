@@ -3,7 +3,7 @@ from socket import error as socket_error
 import sys
 from client_functions import *
 from server_functions import *
-import json, pickle
+import json, pickle,time
 from cluster_server import Cluster_Server
 """
 function: init()
@@ -208,6 +208,11 @@ def Main():
                         insert_sql = "INSERT INTO {table_name} VALUES {row};".format(table_name=table,row=row)
                         c.execute(insert_sql)
                 response = execute_sql(db_conn, readFile(ddlfile), 'runSQL', None)
+                node2.sendData({'totalRow': len(response['data'])})
+                for _ in response['data']:
+                    node2.listen()
+                    node2.sendData(response['data'].pop(0))
+                response['data'] = []
                 response['returnVal'] = join_nodes
                 break
             elif (data_pc_type == "catalog_csv"):

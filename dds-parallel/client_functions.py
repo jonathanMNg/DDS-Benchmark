@@ -143,10 +143,22 @@ def do_connect(node, filename, returnVal, cp_type):
         #send config info
         client_node.sendData(data_send)
         #receive response (status)
+        if(cp_type == 'runLocalNode'):
+            data_len = client_node.recvData()['totalRow']
+            query_data = []
+            for i in range(int(data_len)):
+                node1 = Cluster_Client(cp['host'], int(cp['port']))
+                node1.connect()
+                try:
+                    row_data = node1.recvData()
+                    query_data.append(row_data)
+                except:
+                    break
+            returnObj['data'] = query_data
+            
         data_response = client_node.recvData()
         if(cp_type == 'runLocalNode'):
-            returnObj['data'] = data_response['data']
-            returnObj['nodes'] =data_response['returnVal']
+            returnObj['nodes'] = data_response['returnVal']
             returnObj['ddlfile'] = node['ddlfile']
         if(cp_type == 'sql'):
             for data in data_response['data']:
