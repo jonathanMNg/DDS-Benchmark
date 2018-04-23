@@ -149,6 +149,7 @@ def Main():
             node2.sendMessage(str("received data_pc_type"))
             data_node = node2.recvData()
             if (data_pc_type == "catalog"):
+                response = {}
                 #do something with catalog database
                 #parse data from cfgFile
                 cfgFile = data_node['clustercfg']
