@@ -3,6 +3,7 @@ from functions import *
 from cassandra import ConsistencyLevel
 from datetime import datetime
 import time, sys
+from uuid import uuid1
 
 
 KEYSPACE = 'benchmark'
@@ -41,6 +42,7 @@ def main():
 
     create_table_movies_byRevenue_query = """
                                     CREATE TABLE IF NOT EXISTS {keyspace}.moviesByRevenue (
+                                    uid uuid,
                                     type text,
                                     id int,
                                     title text,
@@ -49,7 +51,7 @@ def main():
                                     budget varint,
                                     revenue varint,
                                     release_date timestamp,
-                                    PRIMARY KEY (type, revenue)
+                                    PRIMARY KEY (type, revenue, uid)
                                     );
                                 """ .format(keyspace=KEYSPACE)
     drop_table_movies_byRevenue_query = """
@@ -57,6 +59,7 @@ def main():
                               """
     create_table_movies_byBudget_query = """
                                     CREATE TABLE IF NOT EXISTS {keyspace}.moviesByBudget (
+                                    uid uuid,
                                     type text,
                                     id int,
                                     title text,
@@ -65,17 +68,17 @@ def main():
                                     budget varint,
                                     revenue varint,
                                     release_date timestamp,
-                                    PRIMARY KEY (type, budget)
+                                    PRIMARY KEY (type, budget, uid)
                                     );
                                 """ .format(keyspace=KEYSPACE)
     drop_table_movies_byBudget_query = """
                                 DROP TABLE IF EXISTS benchmark.moviesByBudget;
                               """
     insert_movie_byRevenue_query = """
-                            INSERT INTO {keyspace}.moviesByRevenue ( type, id, title, popularity, vote_average, budget, revenue, release_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                            INSERT INTO {keyspace}.moviesByRevenue (uid, type, id, title, popularity, vote_average, budget, revenue, release_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                          """ .format(keyspace=KEYSPACE)
     insert_movie_byBudget_query = """
-                            INSERT INTO {keyspace}.moviesByBudget ( type, id, title, popularity, vote_average, budget, revenue, release_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                            INSERT INTO {keyspace}.moviesByBudget (uid, type, id, title, popularity, vote_average, budget, revenue, release_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                          """ .format(keyspace=KEYSPACE)
 
     session = cluster.connect()
@@ -103,27 +106,30 @@ def main():
     prepared_insert_movie_byBudget_query.consistency_level = ConsistencyLevel.ONE
     print("Inserting movies...")
     start_insert_movies = time.time()
-    for movie in movies_table:
-        bound_byRevenue = (prepared_insert_movie_byRevenue_query.bind((
-                                                     'movie',
-                                                     int(movie['id']),
-                                                     movie['title'],
-                                                     float(movie['popularity']),
-                                                     float(movie['vote_average']),
-                                                     int(movie['budget']),
-                                                     int(movie['revenue']),
-                                                     datetime.strptime(get_safe_date(movie['release_date']),'%Y-%m-%d'))))
-        bound_byBudget = (prepared_insert_movie_byBudget_query.bind((
-                                                     'movie',
-                                                     int(movie['id']),
-                                                     movie['title'],
-                                                     float(movie['popularity']),
-                                                     float(movie['vote_average']),
-                                                     int(movie['budget']),
-                                                     int(movie['revenue']),
-                                                     datetime.strptime(get_safe_date(movie['release_date']),'%Y-%m-%d'))))
-        session.execute(bound_byRevenue)
-        session.execute(bound_byBudget)
+    for _ in range(100):
+        for movie in movies_table:
+            bound_byRevenue = (prepared_insert_movie_byRevenue_query.bind((
+                                                         uuid1(),
+                                                         'movie',
+                                                         int(movie['id']),
+                                                         movie['title'],
+                                                         float(movie['popularity']),
+                                                         float(movie['vote_average']),
+                                                         int(movie['budget']),
+                                                         int(movie['revenue']),
+                                                         datetime.strptime(get_safe_date(movie['release_date']),'%Y-%m-%d'))))
+            bound_byBudget = (prepared_insert_movie_byBudget_query.bind((
+                                                         uuid1(),
+                                                         'movie',
+                                                         int(movie['id']),
+                                                         movie['title'],
+                                                         float(movie['popularity']),
+                                                         float(movie['vote_average']),
+                                                         int(movie['budget']),
+                                                         int(movie['revenue']),
+                                                         datetime.strptime(get_safe_date(movie['release_date']),'%Y-%m-%d'))))
+            session.execute(bound_byRevenue)
+            session.execute(bound_byBudget)
 
     end_insert_movies = time.time()
     print("Time to insert: %s" % (end_insert_movies - start_insert_movies))
