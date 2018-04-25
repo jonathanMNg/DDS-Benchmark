@@ -1,0 +1,1 @@
+SELECT title, revenue FROM MOVIES ORDER BY revenue DESC LIMIT 10;

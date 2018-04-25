@@ -1,6 +1,4 @@
-import sys
-import os
-import threading
+import sys, os, threading, time
 from queue import Queue
 from threading import Thread
 from server_functions import *
@@ -264,6 +262,13 @@ def handleCSV(clustercfg, ddlfile):
         print('[' + cat_db[i]['url'] + ']:', ddlfile, row_changes[i], ' rows inserted.')
     for value in returnVal:
         print('[' + value['url'] + ']:', value['ddlfile'], value['status'])
+def time_it(_function, clustercfg, ddlfile):
+    start = time.time()
+    _function(clustercfg, ddlfile)
+    end = time.time()
+    total = end - start
+    print("Time to execute {0:.2f}".format(total))
+
 def main():
     if len(sys.argv) < 3:
         print("Error: You didn't enter enough arguments!")
@@ -275,7 +280,7 @@ def main():
         if(filetype == 'SQL'):
             sqlOperation = getSQLOperationType(ddlfile)
             if(sqlOperation == 'SELECT'):
-                handleSqlSelect(clustercfg, ddlfile)
+                time_it(handleSqlSelect,clustercfg, ddlfile)
             elif(sqlOperation == 'INSERT'):
                 handleSqlInsert(clustercfg, ddlfile)
             elif(sqlOperation == 'CREATE'):
