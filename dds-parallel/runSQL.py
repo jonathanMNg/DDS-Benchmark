@@ -170,6 +170,7 @@ def handleSqlSelect(clustercfg, ddlfile):
         print(data_output)
     for nodes in returnVal[0]['nodes']:
         print('[' + nodes + ']:', returnVal[0]['ddlfile'], returnVal[0]['status'])
+
 def handleSqlCreate(clustercfg, ddlfile):
     cfg = parse_config(clustercfg)
     #get numnodes

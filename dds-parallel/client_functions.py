@@ -94,18 +94,16 @@ This function will kill the connection the the socket by sending a signal
 to make the socket loop (which run indifinitely) break.
 """
 def kill_runSQLSocket(node):
-    mySocket = socket.socket()
     cp = parseUrl(node['url'])
-    node['loop'] = False
+    client_node = Cluster_Client(cp['host'], int(cp['port']))
     data_send = node
     try:
-        mySocket.connect((cp['host'], int(cp['port']) ))
-        data_cp_type = 'runSQL'
-        mySocket.send(data_cp_type.encode())
-        data_recv = mySocket.recv(1024).decode()
-        data_string = pickle.dumps(data_send)
-        mySocket.send(data_string)
-        mySocket.close()
+        client_node.connect()
+        #pc type
+        data_cp_type = "kill_client"
+        client_node.sendMessage(data_cp_type)
+        #listen from server
+        client_node.close()
     except socket_error as e:
         print ('[' + node['url']+ ']:', e)
 """
@@ -147,14 +145,20 @@ def do_connect(node, filename, returnVal, cp_type):
         if(cp_type == 'runLocalNode'):
             data_len = data_response['totalRow']
             query_data = []
+            for row in data_response['data']:
+                query_data.append(row)
+            """
             for i in range(int(data_len)):
                 node1 = Cluster_Client(cp['host'], int(cp['port']))
                 node1.connect()
                 try:
                     row_data = node1.recvData()
                     query_data.append(row_data)
-                except:
+                except socket_error as e:
+                    print("Error 157 ", e)
                     break
+                node1.close()
+            """
             returnObj['data'] = query_data
             returnObj['nodes'] =data_response['returnVal']
             returnObj['ddlfile'] = node['ddlfile']

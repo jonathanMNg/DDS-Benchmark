@@ -161,29 +161,31 @@ def loadCSV(node, db_conn, delimiter=','):
     If the data match with the partition, then it will be append to csv_row[array]
     Then it will be execute in sql to load the data into the selected partition.
     """
-    for csv in csvData:
-        csv = csv.split('|')
-        if(len(csv) > 7):
-            print(csv)
-        if(node['partmtd'] == 0):
-            csv_row.append(csv)
-        elif(node['partmtd'] == 1):
-            #range partition
-            pmin = float(node['partparam1'])
-            pmax = float(node['partparam2'])
-            selColVal = float(csv[selColIndex])
-            if(selColVal >= pmin and selColVal < pmax):
+    for i in range(14):
+        for csv in csvData:
+            csv = csv.split('|')
+            if(len(csv) > 7):
+                print(csv)
+            if(node['partmtd'] == 0):
                 csv_row.append(csv)
-        elif(node['partmtd'] == 2):
-            #hash partition
-            param1 = int(node['partparam1'])
-            node_id = int(node['id'])
-            selColVal = float(csv[selColIndex])
-            if(node_id == int(selColVal % param1) + 1):
-                csv_row.append(csv)
-        else:
-            pass
-    response = execute_sql(db_conn, load_sql, 'csv', csv_row)
+            elif(node['partmtd'] == 1):
+                #range partition
+                pmin = float(node['partparam1'])
+                pmax = float(node['partparam2'])
+                selColVal = float(csv[selColIndex])
+                if(selColVal >= pmin and selColVal < pmax):
+                    csv_row.append(csv)
+            elif(node['partmtd'] == 2):
+                #hash partition
+                param1 = int(node['partparam1'])
+                node_id = int(node['id'])
+                selColVal = float(csv[selColIndex])
+                if(node_id == int(selColVal % param1) + 1):
+                    csv_row.append(csv)
+            else:
+                pass
+        response = execute_sql(db_conn, load_sql, 'csv', csv_row)
+        print(i)
     return response
 """
 function: readFile()

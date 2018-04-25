@@ -146,8 +146,11 @@ def Main():
             #receive type of pc
             node2.listen()
             data_pc_type = node2.recvMessage()
-            node2.sendMessage(str("received data_pc_type"))
-            data_node = node2.recvData()
+            data_node = None
+            confirm_received = "received data_pc_type"
+            if(data_pc_type != "kill"):
+                node2.sendMessage(confirm_received)
+                data_node = node2.recvData()
             if (data_pc_type == "catalog"):
                 response = {}
                 #do something with catalog database
@@ -191,8 +194,6 @@ def Main():
                         threads[i].start()
                     for i in range(numnodes):
                         threads[i].join()
-                for i in range(numnodes):
-                    kill_runSQLSocket(cluster_cp[i])
                 db_conn = create_connection(cp['db'])
                 c = db_conn.cursor()
                 for table in returnVal:
@@ -205,14 +206,17 @@ def Main():
                         c.execute(insert_sql)
                 response = execute_sql(db_conn, readFile(ddlfile), 'runSQL', None)
                 response_data = response['data']
-                response['data'] = []
+                #response['data'] = []
                 response['returnVal'] = join_nodes
                 response['totalRow'] = len(response_data)
                 node2.sendData(response)
+
+                """
                 for row in response_data:
                     node2.listen()
                     node2.sendData(row)
                 break
+                """
             elif (data_pc_type == "catalog_csv"):
                 cp = data_node['url']
                 cat_data = data_node['data']
@@ -290,6 +294,7 @@ def Main():
                 else:
                     break
             else:
+                print("I just got killed")
                 break
         node2.sendData(response)
         node2.close()

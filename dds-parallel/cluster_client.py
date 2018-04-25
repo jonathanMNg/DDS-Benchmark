@@ -16,7 +16,10 @@ class Cluster_Client(Cluster):
     def sendMessage(self, message):
         self.mySocket.send(message.encode())
     def recvMessage(self):
-        return self.mySocket.recv(1024).decode()
+        encodedMessage = self.mySocket.recv(1024)
+        return encodedMessage.decode()
+    def recvRawMessage(self):
+        return self.mySocket.recv(1024)
     #send data under an object
     def sendData(self, dataObject):
         self.mySocket.send(pickle.dumps(dataObject))
