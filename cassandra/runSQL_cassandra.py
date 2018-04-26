@@ -6,6 +6,13 @@ import time, sys
 
 
 KEYSPACE = 'benchmark'
+
+def readFile(filename):
+    fd = open(filename, 'r')
+    data = fd.read()
+    fd.close()
+    return data
+
 def get_cluster_by_mode(cluster_mode):
     cluster = None
     if (cluster_mode == 'localhost'):
@@ -19,8 +26,9 @@ def get_cluster_by_mode(cluster_mode):
         sys.exit()
     return cluster
 def main():
-    if(len(sys.argv) >= 2):
+    if(len(sys.argv) >= 3):
         cluster_mode = sys.argv[1]
+        ddlfile = sys.argv[2]
     else:
         print("Errro: Missing arguments!")
         sys.exit()
@@ -31,9 +39,7 @@ def main():
 
     start = time.time()
     # Select top 10 movies with the highest revenue
-    select_user_query = """
-                            SELECT * FROM benchmark.moviesByRevenue WHERE type='movie' AND release_date >= '2014-01-01' AND release_date < '2015-01-01' LIMIT 100 ALLOW  FILTERING;
-                        """
+    select_user_query = readFile(ddlfile)
     # Output
     rows = session.execute(select_user_query)
     print("Title {0:50} Release date".format(""))
