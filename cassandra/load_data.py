@@ -14,7 +14,7 @@ def get_cluster_by_mode(cluster_mode):
     elif(cluster_mode == 'single'):
         cluster = Cluster(['10.142.0.4'])
     elif(cluster_mode == 'cluster'):
-        cluster = Cluster(['10.142.0.2', '10.142.0.3'])
+        cluster = Cluster(['10.142.0.2', '10.142.0.3', '10.142.0.5'])
     else:
         print("Error: Invalid mode!")
         sys.exit()
