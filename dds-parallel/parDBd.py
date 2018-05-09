@@ -141,6 +141,7 @@ def Main():
         init()
         node2 = Cluster_Server(host, port)
         node2.connect()
+        response = {}
         while True:
             #receive type of pc
             try:
@@ -155,7 +156,6 @@ def Main():
                 node2.sendMessage(confirm_received)
                 data_node = node2.recvData()
             if (data_pc_type == "catalog"):
-                response = {}
                 #do something with catalog database
                 #parse data from cfgFile
                 cfgFile = data_node['clustercfg']
