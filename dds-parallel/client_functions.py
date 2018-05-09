@@ -73,7 +73,7 @@ def runSQL(node, returnVal):
         tableData = pickle.loads(mySocket.recv(4096))
         if(tableData['isExists']):
             returnVal['schema'] = tableData['schema']
-            for i in range (int(tableData['totalRow']) + 1):
+            for i in range (int(tableData['totalRow'])):
                 node1 = Cluster_Client(cp['host'], int(cp['port']))
                 node1.connect()
                 try:
@@ -155,8 +155,9 @@ def do_connect(node, filename, returnVal, cp_type):
                     row_data = node1.recvData()
                     query_data.append(row_data)
                 except socket_error as e:
-                    print("Error 157 ", e, cp)
+                    print("Error 157 ", e)
                     break
+                node1.close()
             """
             returnObj['data'] = query_data
             returnObj['nodes'] =data_response['returnVal']
