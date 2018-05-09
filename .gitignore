@@ -1,0 +1,12 @@
+
+*.docx
+*.xlsx
+dds-parallel/.DS_Store
+dds-parallel/mycatdb
+dds-parallel/mydb/mydb1
+dds-parallel/mydb/mycatdb
+dds-parallel/mydb2
+dds-parallel/mydb1
+dds-parallel/mydb/mydb2
+dds-parallel/mydb/mydb1
+dds-parallel/mydb/mycatdb

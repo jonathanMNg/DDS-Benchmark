@@ -155,7 +155,7 @@ def handleSqlSelect(clustercfg, ddlfile):
     cat_node = {'url': cfg['catalog.hostname'], 'tName': None, 'loop': True}
     cluster_cp = do_connect(cat_node, clustercfg, None, 'parse_cat_db')
     tables = parse_sql.parse_sql_table_name(readFile(ddlfile))
-    local_node = {'url': cfg['localnode.hostname'], 'tName': None, 'loop': True}
+    local_node = {'url': cfg['localnode.hostname'], 'tName': None, 'loop': False}
     local_node['tables'] = tables
     local_node['cluster_cp'] = cluster_cp
     local_node['ddlfile'] = ddlfile
@@ -284,7 +284,7 @@ def main():
             elif(sqlOperation == 'INSERT'):
                 handleSqlInsert(clustercfg, ddlfile)
             elif(sqlOperation == 'CREATE'):
-                handleSqlCreate(clustercfg, ddlfile)
+                time_it(handleSqlCreate,clustercfg, ddlfile)
             elif(sqlOperation == 'DROP'):
                 handleSqlDrop(clustercfg, ddlfile)
             else:

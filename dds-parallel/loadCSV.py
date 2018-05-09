@@ -1,6 +1,4 @@
-import sys
-import socket
-import json
+import sys, socket, json, time
 import pickle
 from socket import error as socket_error
 from client_functions import *
@@ -41,6 +39,8 @@ Main function of the program
 """
 def main():
     init()
+    #Start timing
+    start = time.time()
     cfg = parse_config(clustercfg)
     cat_db_name = parseUrl(cfg['catalog.hostname'])['db']
     cat_node = {'url': cfg['catalog.hostname'], 'tName': cfg['tablename'].upper(), 'loop': True}
@@ -81,6 +81,10 @@ def main():
         do_connect(cat_cp, clustercfg, returnVal, 'catalog_csv' )
         for value in returnVal:
             print('[' + value['url'] + ']:', value['ddlfile'], value['status'])
+        #End timing and output results
+        end = time.time()
+        total = end - start
+        print("Time to insert {0:.2f}".format(total))
     else:
         print("Error: Number of nodes in catalog and numnodes in {} doesn't match"  \
             .format( clustercfg))

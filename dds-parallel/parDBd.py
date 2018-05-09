@@ -1,6 +1,5 @@
-import socket
+import socket, sys, time
 from socket import error as socket_error
-import sys
 from client_functions import *
 from server_functions import *
 import json, pickle,time
@@ -144,7 +143,11 @@ def Main():
         node2.connect()
         while True:
             #receive type of pc
-            node2.listen()
+            try:
+                node2.listen()
+            except:
+                node2.settimeout(None)
+                node2.listen()
             data_pc_type = node2.recvMessage()
             data_node = None
             confirm_received = "received data_pc_type"
@@ -194,29 +197,34 @@ def Main():
                         threads[i].start()
                     for i in range(numnodes):
                         threads[i].join()
-                db_conn = create_connection(cp['db'])
+                db_conn = create_connection(":memory:")
                 c = db_conn.cursor()
                 for table in returnVal:
                     tableData = returnVal[table]
                     create_table_sql = "{create_table_sql};".format(create_table_sql=tableData['schema'])
-                    create_temp_table_sql = create_table_sql.replace("TABLE", "TEMP TABLE")
+                    create_temp_table_sql = create_table_sql.replace("TABLE", "TEMP TABLE IF NOT EXISTS")
                     c.execute(create_temp_table_sql)
                     for row in tableData['row']:
                         insert_sql = "INSERT INTO {table_name} VALUES {row};".format(table_name=table,row=row)
                         c.execute(insert_sql)
+
                 response = execute_sql(db_conn, readFile(ddlfile), 'runSQL', None)
                 response_data = response['data']
                 #response['data'] = []
                 response['returnVal'] = join_nodes
                 response['totalRow'] = len(response_data)
                 node2.sendData(response)
-
                 """
                 for row in response_data:
-                    node2.listen()
-                    node2.sendData(row)
-                break
+                    node2.settimeout(1)
+                    try:
+                        conn, addr = node2.listen()
+                        print( conn)
+                        node2.sendData(row)
+                    except:
+                        break
                 """
+                break
             elif (data_pc_type == "catalog_csv"):
                 cp = data_node['url']
                 cat_data = data_node['data']
@@ -251,8 +259,12 @@ def Main():
                         tableData = {'isExists': True, 'totalRow': totalRow, 'schema': table_cursor[0][0]}
                         node2.sendData(tableData)
                         for row in rows:
-                            node2.listen()
-                            node2.sendData(row)
+                            try:
+                                node2.settimeout(1)
+                                node2.listen()
+                                node2.sendData(row)
+                            except:
+                                break
                     else:
                         tableData = {'isExists': False}
                         node2.sendData(tableData)
@@ -294,9 +306,10 @@ def Main():
                 else:
                     break
             else:
-                print("I just got killed")
                 break
+        print("this is bottom")
         node2.sendData(response)
+        node2.settimeout(1)
         node2.close()
 
 if __name__ == '__main__':

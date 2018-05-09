@@ -26,6 +26,8 @@ class Cluster_Client(Cluster):
     #receive data under an object
     def recvData(self):
         return pickle.loads(self.mySocket.recv(4096))
+    def dup(self):
+        self.mySocket.dup()
     def __del__(self):
         self.mySocket.close()
     def close(self):

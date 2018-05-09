@@ -40,40 +40,7 @@ def main():
             dict_row[col_name] = row[i]
         movies_table.append(dict_row)
 
-    create_table_movies_byRevenue_query = """
-                                    CREATE TABLE IF NOT EXISTS {keyspace}.moviesByRevenue (
-                                    uid uuid,
-                                    type text,
-                                    id int,
-                                    title text,
-                                    popularity float,
-                                    vote_average float,
-                                    budget varint,
-                                    revenue varint,
-                                    release_date timestamp,
-                                    PRIMARY KEY (type, revenue, uid)
-                                    );
-                                """ .format(keyspace=KEYSPACE)
-    drop_table_movies_byRevenue_query = """
-                                DROP TABLE IF EXISTS benchmark.moviesByRevenue;
-                              """
-    create_table_movies_byBudget_query = """
-                                    CREATE TABLE IF NOT EXISTS {keyspace}.moviesByBudget (
-                                    uid uuid,
-                                    type text,
-                                    id int,
-                                    title text,
-                                    popularity float,
-                                    vote_average float,
-                                    budget varint,
-                                    revenue varint,
-                                    release_date timestamp,
-                                    PRIMARY KEY (type, budget, uid)
-                                    );
-                                """ .format(keyspace=KEYSPACE)
-    drop_table_movies_byBudget_query = """
-                                DROP TABLE IF EXISTS benchmark.moviesByBudget;
-                              """
+
     insert_movie_byRevenue_query = """
                             INSERT INTO {keyspace}.moviesByRevenue (uid, type, id, title, popularity, vote_average, budget, revenue, release_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                          """ .format(keyspace=KEYSPACE)
@@ -82,22 +49,9 @@ def main():
                          """ .format(keyspace=KEYSPACE)
 
     session = cluster.connect()
-    print("Processing keyspace `%s`..." % KEYSPACE)
-    new_keyspace = create_keyspace(session, KEYSPACE)
-    if(not new_keyspace):
-        print("Keyspace `%s` is valid and ready to use..." % KEYSPACE)
-    else:
-        print("Keyspace `%s` is successful created..." % KEYSPACE)
-    print("Set `%s` as keyspace" % KEYSPACE)
     session.set_keyspace(KEYSPACE)
 
-    print("Initing table...")
-    #byBudget
-    session.execute(drop_table_movies_byRevenue_query)
-    session.execute(create_table_movies_byRevenue_query)
-    #byRevenue
-    session.execute(drop_table_movies_byBudget_query)
-    session.execute(create_table_movies_byBudget_query)
+    
     print("Preparing query to insert...")
     prepared_insert_movie_byRevenue_query = session.prepare(insert_movie_byRevenue_query)
     prepared_insert_movie_byRevenue_query.consistency_level = ConsistencyLevel.ONE

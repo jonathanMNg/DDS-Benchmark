@@ -24,5 +24,7 @@ class Cluster_Server(Cluster):
         self.mySocket.listen()
         self.conn, self.addr = self.mySocket.accept()
         return self.conn, self.addr
+    def settimeout(self, timeout):
+        self.mySocket.settimeout(timeout)
     def close(self):
         self.conn.close()
